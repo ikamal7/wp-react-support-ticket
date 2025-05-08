@@ -1,0 +1,22 @@
+{
+  "name": "wp-react-support-ticket",
+  "version": "1.0.0",
+  "description": "React admin panel for support ticket system",
+  "main": "index.js",
+  "scripts": {
+    "build": "wp-scripts build",
+    "start": "wp-scripts start",
+    "format": "wp-scripts format"
+  },
+  "author": "Kamal Hosen",
+  "license": "GPL-2.0-or-later",
+  "devDependencies": {
+    "@wordpress/scripts": "^26.19.0"
+  },
+  "dependencies": {
+    "@wordpress/api-fetch": "^6.44.0",
+    "@wordpress/components": "^25.13.0",
+    "@wordpress/element": "^5.24.0",
+    "react-router": "^7.3.0"
+  }
+}

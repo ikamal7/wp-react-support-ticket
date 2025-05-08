@@ -1,10 +1,19 @@
 <?php
 /**
  * Plugin Name: WP Support Ticket React
+ * Plugin URI: https://github.com/ikamal7/wp-react-support-ticket
  * Description: A simple support ticket system with react admin panel
  * Version: 1.0.0
+ * Requires at least: 5.8
+ * Requires PHP: 7.2
  * Author: Kamal Hosen
+ * Author URI: https://github.com/ikamal7
  * License: GPL v2 or later
+ * License URI: https://www.gnu.org/licenses/gpl-2.0.html
+ * Text Domain: wp-support-ticket
+ * Domain Path: /languages
+ *
+ * @package WP_Support_Ticket
  */
 
 if (!defined('ABSPATH')) {
@@ -15,9 +24,26 @@ define('WPST_VERSION', '1.0.0');
 define('WPST_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('WPST_PLUGIN_URL', plugin_dir_url(__FILE__));
 
+/**
+ * Main plugin class for WP Support Ticket React
+ *
+ * @since 1.0.0
+ */
 class WPSupportTicket {
+    /**
+     * Holds the single instance of this class
+     *
+     * @since 1.0.0
+     * @var WPSupportTicket|null
+     */
     private static $instance = null;
 
+    /**
+     * Returns the single instance of this class
+     *
+     * @since 1.0.0
+     * @return WPSupportTicket The single instance of this class
+     */
     public static function get_instance() {
         if (null === self::$instance) {
             self::$instance = new self();
@@ -25,16 +51,35 @@ class WPSupportTicket {
         return self::$instance;
     }
 
+    /**
+     * Private constructor to prevent direct instantiation
+     *
+     * @since 1.0.0
+     */
     private function __construct() {
         add_action('init', array($this, 'init'));
         register_activation_hook(__FILE__, array($this, 'activate'));
     }
 
+    /**
+     * Plugin activation hook callback
+     * Creates database tables and flushes rewrite rules
+     *
+     * @since 1.0.0
+     * @return void
+     */
     public function activate() {
         $this->create_tables();
         flush_rewrite_rules();
     }
 
+    /**
+     * Initialize the plugin
+     * Loads text domain, includes required files, and sets up admin and frontend hooks
+     *
+     * @since 1.0.0
+     * @return void
+     */
     public function init() {
         // Load text domain
         load_plugin_textdomain('wp-support-ticket', false, dirname(plugin_basename(__FILE__)) . '/languages');
@@ -54,11 +99,28 @@ class WPSupportTicket {
         add_shortcode('support_ticket_list', array($this, 'render_ticket_list'));
     }
 
+    /**
+     * Include required files for the plugin
+     *
+     * @since 1.0.0
+     * @return void
+     */
     private function include_files() {
         require_once WPST_PLUGIN_DIR . 'includes/class-ticket-controller.php';
         require_once WPST_PLUGIN_DIR . 'includes/class-rest-api.php';
     }
 
+    /**
+     * Create database tables for tickets and replies
+     *
+     * Creates two tables:
+     * - support_tickets: Stores ticket information
+     * - support_ticket_replies: Stores replies to tickets
+     *
+     * @since 1.0.0
+     * @global wpdb $wpdb WordPress database abstraction object
+     * @return void
+     */
     public function create_tables() {
         global $wpdb;
 
@@ -107,6 +169,12 @@ class WPSupportTicket {
         }
     }
 
+    /**
+     * Add admin menu page for the plugin
+     *
+     * @since 1.0.0
+     * @return void
+     */
     public function add_menu_page() {
         add_menu_page(
             'Support Tickets',
@@ -119,6 +187,14 @@ class WPSupportTicket {
         );
     }
 
+    /**
+     * Enqueue admin scripts and styles
+     *
+     * Loads React app scripts and styles on the admin page
+     *
+     * @since 1.0.0
+     * @return void
+     */
     public function admin_scripts() {
         $screen = get_current_screen();
         if ($screen->id === 'toplevel_page_wp-support-ticket') {
@@ -150,10 +226,26 @@ class WPSupportTicket {
         }
     }
 
+    /**
+     * Render the admin page content
+     *
+     * Outputs the container div where the React app will be mounted
+     *
+     * @since 1.0.0
+     * @return void
+     */
     public function render_admin_page() {
         echo '<div id="wpst-admin"></div>';
     }
 
+    /**
+     * Render the ticket submission form
+     *
+     * Handles the [support_ticket_form] shortcode
+     *
+     * @since 1.0.0
+     * @return string HTML content of the ticket form
+     */
     public function render_ticket_form() {
         if (!is_user_logged_in()) {
             return '<p>' . __('Please log in to submit a ticket.', 'wp-support-ticket') . '</p>';
@@ -164,6 +256,14 @@ class WPSupportTicket {
         return ob_get_clean();
     }
 
+    /**
+     * Render the list of user tickets
+     *
+     * Handles the [support_ticket_list] shortcode
+     *
+     * @since 1.0.0
+     * @return string HTML content of the ticket list
+     */
     public function render_ticket_list() {
         if (!is_user_logged_in()) {
             return '<p>' . __('Please log in to view tickets.', 'wp-support-ticket') . '</p>';
@@ -174,6 +274,14 @@ class WPSupportTicket {
         return ob_get_clean();
     }
 
+    /**
+     * Enqueue frontend scripts
+     *
+     * Loads jQuery and localizes script data for API access
+     *
+     * @since 1.0.0
+     * @return void
+     */
     public function frontend_scripts() {
         wp_enqueue_script('jquery');
         
@@ -184,5 +292,9 @@ class WPSupportTicket {
     }
 }
 
-// Initialize the plugin
+/**
+ * Initialize the plugin
+ *
+ * @since 1.0.0
+ */
 WPSupportTicket::get_instance();
